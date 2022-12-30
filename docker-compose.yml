@@ -1,0 +1,58 @@
+version: '3.8'
+services: 
+  gitlab-ce:
+    image: gitlab/gitlab-ce:latest
+    restart: always
+    hostname: 'gitlab.colinhamerel.com'
+    container_name: gitlab-ce
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        # base gitlab server configuration
+        external_url 'https://gitlab.colinhamerel.com'
+        nginx['listen_https'] = false
+        nginx['listen_port'] = 80
+
+        
+        # GITLAB DOCKER IMAGE REGISTRY: so that we can use our docker image registry with gitlab
+        registry_external_url 'https://registry.colinhamerel.com'
+        gitlab_rails['registry_enabled'] = true
+        gitlab_rails['api_url'] = 'https://registry.colinhamerel.com'
+        registry['enable'] = true
+        registry_nginx['enable'] = false
+        registry['registry_http_addr'] = "0.0.0.0:5000"
+
+    volumes:
+      - gitlab-config:/etc/gitlab'
+      - gitlab-log:/var/log/gitlab'
+      - gitlab-data:/var/opt/gitlab'
+
+    networks:
+      - gitlab
+
+    labels:
+      # gitlab
+      - "traefik.enable=true"
+      - "traefik.http.routers.gitlab-ce.entrypoints=websecure"
+      - "traefik.http.routers.gitlab-ce.rule=Host(`gitlab.colinhamerel.com`)"
+      - "traefik.http.services.gitlab-ce.loadbalancer.server.port=80"
+      - "traefik.http.routers.gitlab-ce.tls.certresolver=production"
+      - "traefik.http.routers.gitlab-ce.service=gitlab-ce"
+      # registry
+      - "traefik.http.routers.gitlab-registry.entrypoints=websecure"
+      - "traefik.http.routers.gitlab-registry.rule=Host(`registry.colinhamerel.com`)"
+      - "traefik.http.services.gitlab-registry.loadbalancer.server.port=5000"
+      - "traefik.http.routers.gitlab-registry.tls.certresolver=production"
+      - "traefik.http.routers.gitlab-registry.service=gitlab-registry"
+      # ssh
+      #- traefik.tcp.routers.gitlab-ssh.rule=HostSNI(`*`)
+      #- traefik.tcp.routers.gitlab-ssh.entrypoints=ssh
+      #- traefik.tcp.routers.gitlab-ssh.service=gitlab-ssh-svc
+      #- traefik.tcp.services.gitlab-ssh-svc.loadbalancer.server.port=22
+
+volumes:
+  gitlab-config:
+  gitlab-log:
+  gitlab-data:
+
+networks:
+  gitlab:
