@@ -21,10 +21,13 @@ services:
         registry_nginx['enable'] = false
         registry['registry_http_addr'] = "0.0.0.0:5000"
 
+        # GITLAB SSH: so that we can use our gitlab ssh with gitlab
+        gitlab_rails['gitlab_shell_ssh_port'] = 22
+
     volumes:
-      - gitlab-config:/etc/gitlab'
-      - gitlab-log:/var/log/gitlab'
-      - gitlab-data:/var/opt/gitlab'
+      - gitlab-config:/etc/gitlab
+      - gitlab-log:/var/log/gitlab
+      - gitlab-data:/var/opt/gitlab
 
     networks:
       - gitlab
@@ -44,10 +47,10 @@ services:
       - "traefik.http.routers.gitlab-registry.tls.certresolver=production"
       - "traefik.http.routers.gitlab-registry.service=gitlab-registry"
       # ssh
-      #- traefik.tcp.routers.gitlab-ssh.rule=HostSNI(`*`)
-      #- traefik.tcp.routers.gitlab-ssh.entrypoints=ssh
-      #- traefik.tcp.routers.gitlab-ssh.service=gitlab-ssh-svc
-      #- traefik.tcp.services.gitlab-ssh-svc.loadbalancer.server.port=22
+      - traefik.tcp.routers.gitlab-ssh.rule=HostSNI(`*`)
+      - traefik.tcp.routers.gitlab-ssh.entrypoints=ssh
+      - traefik.tcp.routers.gitlab-ssh.service=gitlab-ssh-svc
+      - traefik.tcp.services.gitlab-ssh-svc.loadbalancer.server.port=22
 
 volumes:
   gitlab-config:
