@@ -47,11 +47,11 @@ services:
       - "traefik.http.routers.gitlab-registry.tls.certresolver=production"
       - "traefik.http.routers.gitlab-registry.service=gitlab-registry"
       # ssh
-      - traefik.tcp.routers.gitlab-ssh.rule=HostSNI(`gitlab.colinhamerel.com`)
+      - traefik.tcp.routers.gitlab-ssh.rule=HostSNI(`*`)
       - traefik.tcp.routers.gitlab-ssh.entrypoints=ssh
-      - traefik.tcp.routers.gitlab-ssh.service=gitlab-ssh-svc
-      - traefik.tcp.routers.gitlab-ssh.tls=true
-      - traefik.tcp.services.gitlab-ssh-svc.loadbalancer.server.port=22
+      - traefik.tcp.routers.gitlab-ssh.service=gitlab-ssh
+      #- traefik.tcp.routers.gitlab-ssh.tls=true
+      - traefik.tcp.services.gitlab-ssh.loadbalancer.server.port=22
 
 volumes:
   gitlab-config:
