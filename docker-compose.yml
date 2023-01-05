@@ -22,7 +22,7 @@ services:
         registry['registry_http_addr'] = "0.0.0.0:5000"
 
         # GITLAB SSH: so that we can use our gitlab ssh with gitlab
-        gitlab_rails['gitlab_shell_ssh_port'] = 22
+        #gitlab_rails['gitlab_shell_ssh_port'] = 22
 
     volumes:
       - gitlab-config:/etc/gitlab
